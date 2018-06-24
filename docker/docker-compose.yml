@@ -1,0 +1,100 @@
+# traefik + nginx + php-fpm + mysql + phpmyadmin + portainer
+version: '3.4'
+services:
+    traefik:
+        container_name: ${DOMAIN_NAME}_traefik
+        image: traefik:latest
+        ports:
+            - "${HTTP_PORT}:80"
+            #- "443:443"
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+            - ./traefik/traefik.toml:/etc/traefik/traefik.toml
+            - ./traefik/acme:/etc/traefik/acme
+        labels:
+            - traefik.backend=traefik
+            - traefik.frontend.rule=Host:www.traefik.${DOMAIN_NAME},traefik.${DOMAIN_NAME}
+            - traefik.port=8080
+        networks:
+            - proxy.${DOMAIN_NAME}
+    nginx:
+        container_name: ${DOMAIN_NAME}_nginx
+        image: nginx:latest
+        volumes:
+            - ../:/var/www
+            - /var/www/docker
+            - /var/www/mysql
+            - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+            - ./nginx/logs:/var/log/nginx
+        labels:
+            - traefik.backend=nginx
+            - traefik.frontend.rule=Host:www.${DOMAIN_NAME},${DOMAIN_NAME}
+            - traefik.port=80
+        networks:
+            - proxy.${DOMAIN_NAME}
+        links:
+            - php-fpm
+        depends_on:
+            - mysql
+    php-fpm:
+        container_name: ${DOMAIN_NAME}_php-fpm
+        build: ./php-fpm
+        expose:
+            - "9000"
+        volumes:
+            - ../:/var/www
+            - /var/www/docker
+            - /var/www/mysql
+            - ./php-fpm/php-ini-overrides.ini:/usr/local/etc/php/conf.d/99-overrides.ini
+        labels:
+            - traefik.enable=false
+        networks:
+            - proxy.${DOMAIN_NAME}
+        links:
+            - mysql
+        depends_on:
+            - mysql
+    mysql:
+        container_name: ${DOMAIN_NAME}_mysql
+        image: mysql:5.7.22
+        expose:
+            - "3306"
+        volumes:
+            - ../mysql:/var/lib/mysql
+        env_file: ./mysql/.env
+        labels:
+            - traefik.enable=false
+        networks:
+            - proxy.${DOMAIN_NAME}
+    phpmyadmin:
+        container_name: ${DOMAIN_NAME}_phpmyadmin
+        image: phpmyadmin/phpmyadmin
+        labels:
+            - traefik.backend=pma
+            - traefik.frontend.rule=Host:www.pma.${DOMAIN_NAME},pma.${DOMAIN_NAME}
+            - traefik.port=80
+        environment:
+            PMA_HOST: mysql
+        networks:
+             - proxy.${DOMAIN_NAME}
+        links:
+            - mysql
+        depends_on:
+            - mysql
+    portainer:
+        container_name: ${DOMAIN_NAME}_portainer
+        image: portainer/portainer
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+            - ./portainer:/data
+        labels:
+            - traefik.backend=portainer
+            - traefik.frontend.rule=Host:www.portainer.${DOMAIN_NAME},portainer.${DOMAIN_NAME}
+            - traefik.port=9000
+        networks:
+             - proxy.${DOMAIN_NAME}
+networks:
+    proxy.example.com:
+        driver: overlay
+        external: true
+        attachable: true

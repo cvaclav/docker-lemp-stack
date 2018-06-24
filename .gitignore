@@ -1,0 +1,5 @@
+/mysql
+/docker/nginx/logs
+/docker/traefik/acme
+/docker/portainer
+/.env

@@ -1,0 +1,18 @@
+defaultEntryPoints = ["http"]
+logLevel="DEBUG"
+
+[entryPoints]
+    [entryPoints.http]
+        address = ":80"
+    [entryPoints.traefik]
+        address = ":8080"
+
+[api]
+    entryPoint = "traefik"
+    dashboard = true
+
+[docker]
+    domain = "example.com"
+    watch = true
+    exposedByDefault = true
+    swarmMode = false
