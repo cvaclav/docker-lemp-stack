@@ -1,6 +1,9 @@
 # Simple Docker LEMP stack
 This is a server stack used to host your web application with Docker based Nginx, MySQL and PHP. It is a super easy to setup on local development or even on production environment (VPS). There is also PhpMyAdmin to manage your database and Portainer to manage Docker components. The stack is SSL ready by using ACME challenge to get Let's Encrypt certificate. To put everything together there is the Traefik reverse proxy.
 
+How to install Docker based Nginx, MySQL and PHP on Digital Ocean:  
+https://www.youtube.com/watch?v=ciiX3a-BzZs
+
 ## What's inside
 - Nginx
 - MySQL 5.7
