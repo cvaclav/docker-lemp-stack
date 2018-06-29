@@ -4,7 +4,7 @@ This is a server stack used to host your web application with Docker based Nginx
 How to install Docker based Nginx, MySQL and PHP on Digital Ocean:  
 https://www.youtube.com/watch?v=ciiX3a-BzZs
 
-How to install Docker based LEMP server for localhost development:
+How to install Docker based LEMP server for localhost development:  
 https://www.youtube.com/watch?v=mkmcFuJt5Gk
 
 ## What's inside
